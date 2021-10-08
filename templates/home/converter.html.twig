@@ -1,0 +1,80 @@
+{% extends "base.html.twig" %}
+
+{% block body %}
+    <div class="wrapper">
+        <header>Currency Converter</header>
+        <form action="#">
+            <div class="amount">
+                <p>Enter Amount</p>
+                <input type="text" value="1" id="amount">
+            </div>
+            <div class="drop-list" style="padding-bottom: 10px">
+                <div class="from">
+                    <p>From</p>
+                    <div class="select-box">
+                        <select id="from">
+                            <option value="EUR" selected>EUR</option>
+                            {% for curr in currencies %}
+                                <option value="{{ curr.code }}">{{ curr.code }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="icon" id="reverse"><i class="fas fa-exchange-alt"></i></div>
+                <div class="to">
+                    <p>To</p>
+                    <div class="select-box">
+                        <select id="to">
+                            <option value="EUR" selected>EUR</option>
+                            {% for curr in currencies %}
+                                <option value="{{ curr.code }}">{{ curr.code }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="exchange-rate" style="display: none;">
+                <span id="selectedAmount">1</span>
+                <span id="selectedFrom">USD</span> =
+                <span id="sum"> 3.14</span>
+                <span id="selectedTo">GEL</span>
+            </div>
+            <button id="calculate">Get Exchange Rate</button>
+        </form>
+    </div>
+{% endblock %}
+{% block javascripts %}
+    <script src="https://code.jquery.com/jquery-1.12.4.min.js" integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ=" crossorigin="anonymous"></script>
+    
+    <script>
+        $('#reverse').click(function () {
+            let from = $('#from').val().trim()
+            let to = $('#to').val().trim()
+
+            $('#from').val(to)
+            $('#to').val(from)
+            
+            calculate()
+        })
+        
+        $('#calculate').click(calculate)
+        
+        function calculate() {
+            let amount = $('#amount').val().trim()
+            let from = $('#from').val().trim()
+            let to = $('#to').val().trim()
+
+            $.get(`http://0.0.0.0/calculate?from=${from}&to=${to}`).then(function (response) {
+
+                response = $.parseJSON(response)
+
+                $('#selectedFrom').text(from)
+                $('#selectedAmount').text(amount)
+                $('#selectedTo').text(to)
+                $('#sum').text(((response.to / response.from) * amount).toFixed(2))
+
+                $('.exchange-rate').show()
+            })
+        }
+    </script>
+{% endblock %}
